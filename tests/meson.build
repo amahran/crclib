@@ -1,12 +1,5 @@
-# gtest_proj = subproject('gtest')
-# gtest_dep = gtest_proj.get_variable('gtest_dep')
-# gtest_main_dep = gtest_proj.get_variable('gtest_main_dep')
-# Fetch GoogleTest from Meson WrapDB
-# gtest_dep = dependency('gtest', fallback: ['gtest', 'gtest_dep'])
-gtest_dep = dependency('gtest', required: false)
-if not gtest_dep.found()
-    gtest_dep = dependency('gtest', fallback: ['gtest', 'gtest_dep'])
-endif
+gtest_proj = subproject('gtest')
+gtest_dep = gtest_proj.get_variable('gtest_dep')
 
 cpp_args = ['-std=c++20']
 
