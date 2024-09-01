@@ -1,8 +1,6 @@
 gtest_proj = subproject('gtest')
 gtest_dep = gtest_proj.get_variable('gtest_dep')
 
-cpp_args = ['-std=c++20']
-
 sources = [
   'test_crc.cpp'
 ]
@@ -15,7 +13,6 @@ includes = [
 test_exe = executable('test_crc',
   sources : sources,
   include_directories : includes,
-  cpp_args : cpp_args,
   # this will work only if crc has the 'declare_dependency' method defined
   dependencies : [gtest_dep, crc_dep]
 )

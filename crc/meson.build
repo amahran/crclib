@@ -6,18 +6,9 @@ include_directories = [
   '.'
 ]
 
-# exe = executable('crc', 
-#   sources : sources,
-#   include_directories : include_directories,
-#   install : false)
-
 crc_lib = static_library('crclib',
   sources : sources,
   include_directories : include_directories,
-  # compiler flags
-  # c_args : [''],
-  # linker flags
-  # link_args : [''],
   install : false
 )
 

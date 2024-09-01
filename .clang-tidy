@@ -1,0 +1,18 @@
+Checks: >
+  -*,
+  bugprone-*, 
+  modernize-*,
+  performance-*,
+  readability-*
+
+HeaderFilterRegex: '.*'
+FormatStyle: none
+CheckOptions:
+  - key: modernize-use-auto.MinTypeNameLength
+    value: '5'
+  - key: readability-identifier-naming.VariableCase
+    value: lower_case
+  - key: cxx-language-standard
+    value: c++20
+  - key: c-language-standard
+    value: c17

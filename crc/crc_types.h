@@ -7,7 +7,10 @@ extern "C" {
 #endif
 
 #include "crc_cfg.h"
+#include <stdalign.h>
 #include <stdint.h>
+
+#define CRC_TABLE_SIZE 256U
 
 typedef uint32_t crc_t;
 typedef void (*crc_cyclicfn_t)(void);
@@ -21,9 +24,12 @@ typedef struct
 
 typedef struct
 {
-  crc_t crc;
-  crc_param_t params;
+  // public
   crc_cyclicfn_t cyclicfn;
+  crc_t crc;
+  // private
+  crc_t _crc_table[CRC_TABLE_SIZE];
+  uint8_t _padding[4];
 } crc_ctx_t;
 
 #define CRC_CYCLIC_TRIGGER(function, cycle)                                    \

@@ -13,14 +13,25 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Install dependencies
-      run: sudo apt-get update && sudo apt-get install -y ninja-build meson
+      run: sudo apt-get update && sudo apt-get install -y ninja-build meson gcovr
 
-    - name: Configure build
-      run: meson setup build
+    # Debug build
+    - name: Configure build - debug
+      run: meson setup build --native-file=native.ini --buildtype=debug -Db_coverage=true
 
     - name: Build
       run: meson compile -C build
 
     - name: Run tests
-      run: meson test -C build
+      run: meson test -C build --verbose --no-rebuild
+
+    - name: Generate code coverage report
+      run: ninja -C build coverage
+
+    # Release build
+    - name: Configure build - release
+      run: meson setup build --native-file=native.ini --buildtype=release -Db_coverage=false
+
+    - name: Build
+      run: meson compile -C build
 

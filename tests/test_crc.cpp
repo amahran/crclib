@@ -4,7 +4,7 @@
 
 // Mock function to simulate the cyclic function behavior
 static int g_cyclic_call_count = 0;
-void
+static void
 mock_cyclicfn()
 {
   g_cyclic_call_count++;
@@ -13,11 +13,7 @@ mock_cyclicfn()
 // Test CRC initialization
 TEST(CrcTest, InitTest)
 {
-  crc_ctx_t ctx = { .crc = 0,
-                    .params = { .init_val = 0xFFFFFFFF,
-                                .polynomial = 0xEDB88320,
-                                .final_xor = 0xFFFFFFFF },
-                    .cyclicfn = nullptr };
+  crc_ctx_t ctx;
 
   crc_init(&ctx);
 
@@ -27,16 +23,12 @@ TEST(CrcTest, InitTest)
 // Test CRC update with known data
 TEST(CrcTest, UpdateTest)
 {
-  crc_ctx_t ctx = { .crc = 0xFFFFFFFF,
-                    .params = { .init_val = 0xFFFFFFFF,
-                                .polynomial = 0xEDB88320,
-                                .final_xor = 0xFFFFFFFF },
-                    .cyclicfn = nullptr };
+  crc_ctx_t ctx;
 
   crc_init(&ctx);
 
-  const uint8_t data[] = { 0x31, 0x32, 0x33, 0x34 }; // "1234"
-  crc_update(&ctx, data, sizeof(data));
+  const std::vector<uint8_t> data = { 0x31, 0x32, 0x33, 0x34 }; // "1234"
+  crc_update(&ctx, data.data(), data.size());
   crc_finalize(&ctx);
 
   EXPECT_EQ(ctx.crc, 0x9BE3E0A3);
@@ -47,11 +39,8 @@ TEST(CrcTest, CyclicFunctionTableGenerationTest)
 {
   g_cyclic_call_count = 0;
 
-  crc_ctx_t ctx = { .crc = 0xFFFFFFFF,
-                    .params = { .init_val = 0xFFFFFFFF,
-                                .polynomial = 0xEDB88320,
-                                .final_xor = 0xFFFFFFFF },
-                    .cyclicfn = mock_cyclicfn };
+  crc_ctx_t ctx;
+  ctx.cyclicfn = mock_cyclicfn;
 
   crc_init(&ctx);
 
@@ -62,38 +51,30 @@ TEST(CrcTest, CyclicFunctionTableGenerationTest)
 // Test CRC update with the cyclic function callback
 TEST(CrcTest, CyclicFunctionUpdateTest)
 {
-  crc_ctx_t ctx = { .crc = 0xFFFFFFFF,
-                    .params = { .init_val = 0xFFFFFFFF,
-                                .polynomial = 0xEDB88320,
-                                .final_xor = 0xFFFFFFFF },
-                    .cyclicfn = mock_cyclicfn };
+  crc_ctx_t ctx;
+  ctx.cyclicfn = mock_cyclicfn;
 
   crc_init(&ctx);
   g_cyclic_call_count = 0;
 
-  const uint8_t data[] = { 0x31, 0x32, 0x33, 0x34, 0x35 };
-  crc_update(&ctx, data, sizeof(data));
+  const std::vector<uint8_t> data = { 0x31, 0x32, 0x33, 0x34, 0x35 };
+  crc_update(&ctx, data.data(), data.size());
   crc_finalize(&ctx);
 
   EXPECT_EQ(g_cyclic_call_count,
-            (sizeof(data) + CRC_CYCLIC_TRIGGER_INTERVAL - 1) /
+            (data.size() + CRC_CYCLIC_TRIGGER_INTERVAL - 1) /
               CRC_CYCLIC_TRIGGER_INTERVAL);
 }
 
 // Test CRC with empty data
 TEST(CrcTest, EmptyDataTest)
 {
-  crc_ctx_t ctx = { .crc = 0xFFFFFFFF,
-                    .params = { .init_val = 0xFFFFFFFF,
-                                .polynomial = 0xEDB88320,
-                                .final_xor = 0xFFFFFFFF },
-                    .cyclicfn = nullptr };
+  crc_ctx_t ctx;
 
   crc_init(&ctx);
 
-  const uint8_t* data = nullptr;
-  size_t length = 0;
-  crc_update(&ctx, data, length);
+  std::vector<uint8_t> data;
+  crc_update(&ctx, data.data(), data.size());
   crc_finalize(&ctx);
 
   EXPECT_EQ(ctx.crc, 0);
@@ -102,16 +83,12 @@ TEST(CrcTest, EmptyDataTest)
 // Test CRC with single-byte data
 TEST(CrcTest, SingleByteTest)
 {
-  crc_ctx_t ctx = { .crc = 0xFFFFFFFF,
-                    .params = { .init_val = 0xFFFFFFFF,
-                                .polynomial = 0xEDB88320,
-                                .final_xor = 0xFFFFFFFF },
-                    .cyclicfn = nullptr };
+  crc_ctx_t ctx;
 
   crc_init(&ctx);
 
-  const uint8_t data[] = { 0x31 }; // "1"
-  crc_update(&ctx, data, sizeof(data));
+  const std::vector<uint8_t> data = { 0x31 }; // "1"
+  crc_update(&ctx, data.data(), data.size());
   crc_finalize(&ctx);
 
   EXPECT_EQ(ctx.crc, 0x83DCEFB7);
@@ -120,16 +97,12 @@ TEST(CrcTest, SingleByteTest)
 // Test CRC with large data
 TEST(CrcTest, LargeDataTest)
 {
-  crc_ctx_t ctx = { .crc = 0xFFFFFFFF,
-                    .params = { .init_val = 0xFFFFFFFF,
-                                .polynomial = 0xEDB88320,
-                                .final_xor = 0xFFFFFFFF },
-                    .cyclicfn = nullptr };
+  crc_ctx_t ctx;
 
   crc_init(&ctx);
 
   // Large data buffer
-  std::vector<uint8_t> data(1024 * 1024, 0xAB);
+  const std::vector<uint8_t> data(1024UL * 1024, 0xAB);
   crc_update(&ctx, data.data(), data.size());
   crc_finalize(&ctx);
 
@@ -137,8 +110,8 @@ TEST(CrcTest, LargeDataTest)
 }
 
 // Main function for running the tests
-int
-main(int argc, char** argv)
+auto
+main(int argc, char** argv) -> int
 {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
