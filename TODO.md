@@ -6,6 +6,9 @@
 - [ ] Let the user select the polynomial, init, final xor and in/out reflection
 - [ ] The latter will require generics to deal with the internals
 
+## Improvements
+- [ ] clang-format with cmake
+
 ## Docs
 - [ ] Add doxygen style documentation to the source code
 - [ ] Add license information to the source code

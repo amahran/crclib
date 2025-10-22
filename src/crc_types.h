@@ -1,10 +1,8 @@
 // CRC lib types
-#ifndef CRC_TYPES_H
-#define CRC_TYPES_H
+#ifndef CRC_TYPES_H_
+#define CRC_TYPES_H_
 
-#include <stdalign.h>
-#include <stddef.h>
-#include <stdint.h>
+#include "types.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -12,23 +10,24 @@ extern "C" {
 
 #define CRC_TABLE_SIZE 256U
 
-typedef uint32_t crc_t;
-typedef void (*crc_cyclic_fn)(void);
+// CRC-32
+typedef u32 Crc_t;
+typedef void (*Crc_CyclicFn)(void);
 
-struct crc_params {
-    crc_t init_val;
-    crc_t polynomial;
-    crc_t final_xor;
-};
+typedef struct {
+    Crc_t init_val;
+    Crc_t polynomial;
+    Crc_t final_xor;
+} Crc_Params;
 
-struct crc_ctx {
+typedef struct {
     // public
-    crc_t crc;
-    crc_cyclic_fn cyclic_fn;
-    struct crc_params params;
+    Crc_t crc;
+    Crc_CyclicFn cyclic_fn;
+    Crc_Params params;
     // private
-    crc_t crc_table_[CRC_TABLE_SIZE];
-};
+    Crc_t _crc_table[CRC_TABLE_SIZE];
+} Crc_Ctx;
 
 #define CRC_CYCLIC_TRIGGER(function, cycle)                      \
     if (NULL != (function) &&                                    \
@@ -40,4 +39,4 @@ struct crc_ctx {
 }
 #endif
 
-#endif  // CRC_TYPES_H
+#endif  // CRC_TYPES_H_

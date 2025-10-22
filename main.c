@@ -3,16 +3,19 @@
 
 #include "crc.h"
 
-static void wd_trigger(void) {}
+static void wd_trigger(void)
+{
+    // function to check and trigger watchdog if needed
+}
 
-int main(void) {
+int main(void)
+{
     // example usage
-    uint8_t data[4] = {0x31U, 0x32U, 0x33U, 0x34U};
-    struct crc_ctx crc_ctx = {
-        .cyclic_fn = wd_trigger,
-        .params = {.init_val = CRC_INITIAL_VALUE32,
-                   .polynomial = CRC_POLYNOMIAL_32_REFLECT,
-                   .final_xor = CRC_FINAL_XOR_CRC32}};
+    u8 data[4] = {0x31U, 0x32U, 0x33U, 0x34U};
+    Crc_Ctx crc_ctx = {.cyclic_fn = wd_trigger,
+                       .params = {.init_val = CRC_INITIAL_VALUE32,
+                                  .polynomial = CRC_POLYNOMIAL_32_REFLECT,
+                                  .final_xor = CRC_FINAL_XOR_CRC32}};
 
     crc_init(&crc_ctx);
     crc_update(&crc_ctx, data, sizeof(data));

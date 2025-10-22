@@ -1,38 +1,26 @@
 // CRC public header
-#ifndef CRC_H
-#define CRC_H
+#ifndef CRC_H_
+#define CRC_H_
 
 #include <stddef.h>
 #include <stdint.h>
 
 #include "crc_cfg.h"
 #include "crc_types.h"
+#include "types.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#ifndef __cplusplus
-void crc_init(struct crc_ctx ctx[static 1]);
-#else
-void crc_init(struct crc_ctx* ctx);
-#endif  // __cplusplus
+void crc_init(Crc_Ctx* ctx);
 
-#ifndef __cplusplus
-void crc_update(struct crc_ctx ctx[static 1], const uint8_t data[static 1],
-                size_t length);
-#else
-void crc_update(struct crc_ctx* ctx, const uint8_t* data, size_t length);
-#endif  // __cplusplus
+void crc_update(Crc_Ctx* ctx, const u8* data, usize len);
 
-#ifndef __cplusplus
-void crc_finalize(struct crc_ctx ctx[static 1]);
-#else
-void crc_finalize(struct crc_ctx* ctx);
-#endif  // __cplusplus
+void crc_finalize(Crc_Ctx* ctx);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif  // CRC_H
+#endif  // CRC_H_

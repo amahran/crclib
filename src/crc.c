@@ -1,39 +1,50 @@
 #include "crc.h"
 
+#include <assert.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 
-#define CRC_IDX_MASK 0xFFU
-#define CRC_IDX_BITS 8U
+#include "types.h"
 
-static void crc_generate_table(struct crc_ctx ctx[static 1]);
+#define CRC_IDX_MASK 0xFFu
+#define CRC_IDX_BITS 8u
 
-void crc_init(struct crc_ctx ctx[static 1]) {
+static void generate_table(Crc_Ctx *ctx);
+
+void crc_init(Crc_Ctx *ctx)
+{
+    assert(NULL != ctx);
     ctx->crc = ctx->params.init_val;
-    crc_generate_table(ctx);
+    generate_table(ctx);
 }
 
-void crc_update(struct crc_ctx ctx[static 1], const uint8_t data[static 1],
-                size_t length) {
-    for (size_t i = 0; i != length; i++) {
+void crc_update(Crc_Ctx *ctx, const u8 *data, usize len)
+{
+    if (len == 0) return;
+    assert((ctx != NULL) && (data != NULL));
+
+    for (usize i = 0; i != len; ++i) {
         CRC_CYCLIC_TRIGGER(ctx->cyclic_fn, i);
 
-        uint8_t pos = (ctx->crc ^ data[i]) & CRC_IDX_MASK;
-        ctx->crc = (ctx->crc >> CRC_IDX_BITS) ^ ctx->crc_table_[pos];
+        u8 pos = (ctx->crc ^ data[i]) & CRC_IDX_MASK;
+        ctx->crc = (ctx->crc >> CRC_IDX_BITS) ^ ctx->_crc_table[pos];
     }
 }
 
-void crc_finalize(struct crc_ctx ctx[static 1]) {
+void crc_finalize(Crc_Ctx *ctx)
+{
+    assert(ctx != NULL);
     ctx->crc ^= (ctx->params.final_xor);
 }
 
-static void crc_generate_table(struct crc_ctx ctx[static 1]) {
-    crc_t crc;
-    for (uint_fast32_t i = 0; i != CRC_TABLE_SIZE; ++i) {
+static void generate_table(Crc_Ctx *ctx)
+{
+    Crc_t crc;
+    for (usize i = 0; i != CRC_TABLE_SIZE; ++i) {
         CRC_CYCLIC_TRIGGER(ctx->cyclic_fn, i);
 
-        crc = (crc_t)i;
+        crc = (Crc_t)i;
         for (uint_fast8_t j = 0; j != CRC_IDX_BITS; ++j) {
             if (crc & 1U) {
                 crc = (crc >> 1U) ^ (ctx->params.polynomial);
@@ -41,6 +52,6 @@ static void crc_generate_table(struct crc_ctx ctx[static 1]) {
                 crc >>= 1U;
             }
         }
-        ctx->crc_table_[i] = crc;
+        ctx->_crc_table[i] = crc;
     }
 }
